@@ -109,7 +109,7 @@ button:hover {
 
 #scrollTopButton {
     position: fixed;
-    bottom: 20px;
+    bottom: 60px;
     right: 5%; 
     transform: translateX(-50%); 
     background-color: #007bff; 
