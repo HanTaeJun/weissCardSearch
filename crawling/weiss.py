@@ -20,30 +20,34 @@ def extract_card_info(card_row):
         title = title_tag.text.strip()
 
         spans = card_row.find_all("span")
-        level, power, soul, cost, rarity, trigger, features, flavor, effect = "", "", "", "", "", "", "", "", ""
+        level, power, soul, cost, rarity, soultrigger, trigger, features, flavor, effect = "", "", "", "", "", "", "", "", "", ""
 
         for span in spans:
             text = span.get_text()
-            if "レベル：" in text:
-                level = text.replace("レベル：", "").strip() # 레벨
-            elif "パワー：" in text:
-                power = text.replace("パワー：", "").strip() # 파워
-            elif "色：" in text:
-                colorImg = len(span.find_all("img"))
-                if (colorImg == 0) : color = text.replace("色：", "").strip() # 색
-                else: color = span.find("img")['src'].split('/')[-1].split('.')[0] # 색
-            elif "ソウル：" in text:
-                soul = len(span.find_all("img")) # 소울 (img 태그의 갯수만큼)
-            elif "コスト：" in text:
-                cost = text.replace("コスト：", "").strip() # 코스트
-            elif "レアリティ：" in text:
-                rarity = text.replace("レアリティ：", "").strip() # 레어리티
-            elif "トリガー：" in text:
-                trigger = len(span.find_all("img")) # 트리거=도라 (img 태그의 갯수만큼) 클라이막스 예외처리필요...
-            elif "特徴：" in text:
-                features = text.replace("特徴：", "").strip() # 특징
-            elif "フレーバー：" in text:
-                flavor = text.replace("フレーバー：", "").strip() # 플레이버 (카드에 적힌 대사같은거)
+            if "レベル：" in text: # 레벨
+                level = text.replace("レベル：", "").strip()
+            elif "パワー：" in text: # 파워
+                power = text.replace("パワー：", "").strip()
+            elif "色：" in text:  # 색
+                colorLength = len(span.find_all("img"))
+                if (colorLength == 0) : color = text.replace("色：", "").strip()
+                else: color = span.find("img")['src'].split('/')[-1].split('.')[0]
+            elif "ソウル：" in text: # 소울 (img 태그의 갯수만큼)
+                soul = len(span.find_all("img"))
+            elif "コスト：" in text: # 코스트
+                cost = text.replace("コスト：", "").strip()
+            elif "レアリティ：" in text: # 레어리티 (클막구분에 유효, 다만 페러럴카드 추가되면 모르겠음)
+                rarity = text.replace("レアリティ：", "").strip()
+            elif "トリガー：" in text: # 트리거=도라 (img 태그의 갯수만큼) 클라이막스 예외처리필요...
+                triggerLength = len(span.find_all("img"))
+                if(rarity=="CR"): checkTrigger = span.find_all("img")[-1]['src'].split('/')[-1].split('.')[0]
+                else: soultrigger = triggerLength
+                if(checkTrigger!="soul" and triggerLength==2): soultrigger = 1; trigger=checkTrigger
+                else: soultrigger=checkTrigger
+            elif "特徴：" in text: # 특징
+                features = text.replace("特徴：", "").strip()
+            elif "フレーバー：" in text: # 플레이버 (카드에 적힌 대사같은거)
+                flavor = text.replace("フレーバー：", "").strip()
         
         # 카드 효과는 span에없고 마지막 span class가 highlight_target인게 효과길래 이렇게 처리
         effect_tag = card_row.find_all("span", class_="highlight_target")[-1]
@@ -57,6 +61,7 @@ def extract_card_info(card_row):
             "soul": soul,
             "cost": cost,
             "rarity": rarity,
+            "soultrigger": soultrigger,
             "trigger": trigger,
             "features": features,
             "flavor": flavor,
@@ -122,16 +127,16 @@ def save_to_json(data, filename="cards_data.json"):
 # 실행
 if __name__ == "__main__":
     page_start = 1 # 시작 페이지
-    page_end = 1379 # 끝 페이지 250116기준 1379페이지까지 번역완료.
-    keyword = "" # 검색할 검색어
+    page_end = 1 # 끝 페이지 250116기준 1379페이지가 끝 (전체).
+    keyword = "BAV/W112-141" # 검색할 검색어
     cards_data = crawl_cards(page_start, page_end, keyword)
     
     if cards_data:
         save_to_json(cards_data) # 크롤링된 카드 데이터를 JSON 파일로 저장
 
         # 번역된 한글 카드 데이터 저장
-        translated_data = asyncio.run(process_translation(cards_data))
-        save_to_json(translated_data, "cards_data_kr.json")
+        # translated_data = asyncio.run(process_translation(cards_data))
+        # save_to_json(translated_data, "cards_data_kr.json")
 
         print(f"{page_end - page_start + 1} 페이지의 카드 정보가 JSON 파일로 저장되었습니다.")
     else:
