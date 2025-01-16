@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Weiss card search</title>
+    <style>
+        /* body { font-family: Arial, sans-serif; margin: 20px; }
+        #results { margin-top: 20px; }
+        .card { border: 1px solid #ccc; padding: 10px; margin-bottom: 10px; }
+        .card-title { font-weight: bold; }
+        .pagination { margin-top: 20px; }
+        .pagination button { padding: 5px 10px; margin: 0 5px; } */
+    </style>
+    <link rel="stylesheet" href="index.css">
+    <script src='cardlist.js'></script>
+    <script src='index.js'></script>
+</head>
+<body>
+    <h1>카드 검색</h1>
+    <input type="text" id="searchInput" placeholder="카드명/카드번호 입력">
+    <button onclick="search(true)">검색</button>
+    <button id="scrollTopButton" style="display: none;"></button>
+    <div id="results"></div>
+    <div id="pagination" class="pagination"></div>
+</body>
+</html>
