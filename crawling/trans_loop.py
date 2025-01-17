@@ -1,15 +1,16 @@
 import json
 from googletrans import Translator
-import time
 import asyncio
+import time
 
 # 번역기 초기화
 translator = Translator()
 
 async def translate_to_korean(text):
-    while True:
+    while True:  # 실패 시 재시도 루프
         try:
-            result = translator.translate(text, src="ja", dest="ko")
+            # 번역 수행
+            result = await translator.translate(text, src="ja", dest="ko")
             return result.text
         except Exception as e:
             print(f"번역 실패, 재시도 중... 에러: {e}")
@@ -24,20 +25,16 @@ async def translate_json(input_path, output_path):
         total_cards = len(data)
         print(f"총 {total_cards}개의 카드가 번역 중입니다...")
 
-        # 번역 수행
+        # 각 카드 번역 수행
         for index, card in enumerate(data):
             print(f"{index + 1}/{total_cards} 카드 번역 중... {card['title']}")
-            # 실패 시 재시도 로직 포함
-            while True:
-                try:
-                    # card["title"] = await translate_to_korean(card["title"])
-                    card["effect"] = await translate_to_korean(card["effect"])
-                    break  # 성공 시 루프 탈출
-                except Exception as e:
-                    print(f"카드 번역 실패, 재시도 중... 에러: {e}")
-                    time.sleep(2)  # 2초 대기 후 재시도
+            # 카드 제목 번역 (필요 시 활성화)
+            # card["title"] = translate_to_korean(card["title"])
+            
+            # 카드 효과 번역
+            card["effect"] = await translate_to_korean(card["effect"])
 
-        # 번역된 JSON 저장
+        # 번역된 데이터 저장
         with open(output_path, "w", encoding="utf-8") as file:
             json.dump(data, file, ensure_ascii=False, indent=4)
 
