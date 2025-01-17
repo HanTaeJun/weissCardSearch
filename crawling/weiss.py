@@ -2,7 +2,8 @@ from bs4 import BeautifulSoup
 import requests
 import json
 from googletrans import Translator # 구글 번역 라이브러리 사용
-import asyncio
+# import asyncio
+import time
 
 # 구글 번역기 객체 초기화
 translator = Translator()
@@ -82,13 +83,17 @@ def extract_card_info(card_row):
 def crawl_cards(page_start, page_end, keyword):
     all_cards = []
 
-    for page in range(page_start, page_end + 1): # page_start에서 page_end까지 크롤링
+    for page in range(page_start, page_end + 1):  # page_start에서 page_end까지 크롤링
         print(f"페이지 {page} 크롤링 중...")
-        response = requests.post(BASE_URL.format(page), headers=HEADERS, data={"keyword": keyword, "parallel": 1}) # 패러렐카드 제외 키워드
         
-        if response.status_code != 200:
-            print(f"페이지 {page}를 가져오지 못했습니다. 상태 코드: {response.status_code}")
-            continue
+        while True:  # 성공할 때까지 반복
+            response = requests.post(BASE_URL.format(page), headers=HEADERS, data={"keyword": keyword, "parallel": 1})  # 패러렐카드 제외 키워드
+            
+            if response.status_code == 200:
+                break  # 요청 성공 시 반복 종료
+            
+            print(f"페이지 {page}를 가져오지 못했습니다. 상태 코드: {response.status_code}. 재시도 중...")
+            time.sleep(2)  # 요청 간 딜레이 추가 (필요 시 조정 가능)
         
         soup = BeautifulSoup(response.text, "html.parser")
         
@@ -100,6 +105,7 @@ def crawl_cards(page_start, page_end, keyword):
                 all_cards.append(card_info)
 
     return all_cards
+
 
 # 구글 번역 함수
 async def translate_to_korean(text):
