@@ -30,8 +30,10 @@ def extract_card_info(card_row):
                 power = text.replace("パワー：", "").strip()
             elif "色：" in text:  # 색
                 colorLength = len(span.find_all("img"))
-                if (colorLength == 0) : color = text.replace("色：", "").strip()
-                else: color = span.find("img")['src'].split('/')[-1].split('.')[0]
+                if (colorLength == 0) : 
+                    color = text.replace("色：", "").strip()
+                else: 
+                    color = span.find("img")['src'].split('/')[-1].split('.')[0]
             elif "ソウル：" in text: # 소울 (img 태그의 갯수만큼)
                 soul = len(span.find_all("img"))
             elif "コスト：" in text: # 코스트
@@ -40,10 +42,15 @@ def extract_card_info(card_row):
                 rarity = text.replace("レアリティ：", "").strip()
             elif "トリガー：" in text: # 트리거=도라 (img 태그의 갯수만큼) 클라이막스 예외처리필요...
                 triggerLength = len(span.find_all("img"))
-                if(rarity=="CR"): checkTrigger = span.find_all("img")[-1]['src'].split('/')[-1].split('.')[0]
-                else: soultrigger = triggerLength
-                if(checkTrigger!="soul" and triggerLength==2): soultrigger = 1; trigger=checkTrigger
-                else: soultrigger=checkTrigger
+                if(rarity=="CR"): 
+                    checkTrigger = span.find_all("img")[-1]['src'].split('/')[-1].split('.')[0]
+                    if(checkTrigger!="soul" and triggerLength==2): 
+                        soultrigger = 1; 
+                        trigger=checkTrigger
+                    else: 
+                        soultrigger = checkTrigger
+                else: 
+                    soultrigger = triggerLength
             elif "特徴：" in text: # 특징
                 features = text.replace("特徴：", "").strip()
             elif "フレーバー：" in text: # 플레이버 (카드에 적힌 대사같은거)
@@ -127,14 +134,14 @@ def save_to_json(data, filename="cards_data.json"):
 # 실행
 if __name__ == "__main__":
     page_start = 1 # 시작 페이지
-    page_end = 1 # 끝 페이지 250116기준 1379페이지가 끝 (전체).
-    keyword = "BAV/W112-141" # 검색할 검색어
+    page_end = 1379 # 끝 페이지 250116기준 1379페이지가 끝 (전체).
+    keyword = "" # 검색할 검색어
     cards_data = crawl_cards(page_start, page_end, keyword)
     
     if cards_data:
         save_to_json(cards_data) # 크롤링된 카드 데이터를 JSON 파일로 저장
 
-        # 번역된 한글 카드 데이터 저장
+        # 번역된 한글 카드 데이터 저장 -> 따로 trans.py 만듬.
         # translated_data = asyncio.run(process_translation(cards_data))
         # save_to_json(translated_data, "cards_data_kr.json")
 
