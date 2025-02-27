@@ -139,8 +139,8 @@ def save_to_json(data, filename="cards_data.json"):
 
 # 실행
 if __name__ == "__main__":
-    page_start = 1 # 시작 페이지
-    page_end = 1379 # 끝 페이지 250116기준 1379페이지가 끝 (전체).
+    page_start = 1379 # 시작 페이지
+    page_end = 1399 # 끝 페이지 250116기준 1379페이지가 끝 (전체).
     keyword = "" # 검색할 검색어
     cards_data = crawl_cards(page_start, page_end, keyword)
     
